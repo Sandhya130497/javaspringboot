@@ -1,37 +1,27 @@
-trigger:
-- task: Maven@4
-  inputs:
-    mavenPomFile: 'pom.xml'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    javaHomeOption: 'JDKVersion'
-    mavenVersionOption: 'Default'
-    mavenAuthenticateFeed: false
-    effectivePomSkip: false
-    sonarQubeRunAnalysis: false
-- ado-rrtech
+ trigger:
+  branches:
+    include:
+      - main
 
 pool:
-  name: 'Default'
-#  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
 steps:
-- task: Maven@3
-  inputs:
-    mavenPomFile: 'pom.xml'
-    mavenOptions: '-Xmx3072m'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: 'clean verify sonar:sonar -DskipTests'
+  - task: Maven@3
+    inputs:
+      mavenPomFile: 'pom.xml'
+      goals: 'clean package'
+      options: '-DskipTests=true'
+    displayName: 'Build with Maven'
 
-- task: PublishPipelineArtifact@1
-  inputs:
-    targetPath: '$(Pipeline.Workspace)'
-    artifact: 'artifact-dev'
-    publishLocation: 'pipeline'
+  - task: CopyFiles@2
+    inputs:
+      contents: '**/target/*.jar'
+      targetFolder: '$(Build.ArtifactStagingDirectory)'
+    displayName: 'Copy JAR files to: $(Build.ArtifactStagingDirectory)'
 
-- task: DownloadPipelineArtifact@2
-  inputs:
-    buildType: 'current'
-    artifactName: 'artifact-dev'
-    targetPath: '$(Pipeline.Workspace)'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: 'drop'
+    displayName: 'Publish Artifact: drop'
