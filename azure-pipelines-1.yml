@@ -6,7 +6,7 @@ pool:
   name: 'javaspringboot'
 
 variables:
-  mavenVersion: '3.0.5'
+  
   javaVersion: '11'
   azureSubscription: 'javaspringboot'
   appName: 'Javasringboot'
@@ -25,15 +25,7 @@ stages:
         versionSpec: '$(javaVersion)'
         addToPath: true
 
-    - task: Maven@3
-      inputs:
-        mavenVersionOption: 'Default'
-        goals: 'clean install'
-        options: '-Dmaven.test.failure.ignore=false'
-        javaHomeOption: 'JDKVersion'
-        
-        jdkVersion: '1.8'
-      displayName: 'Run Maven build'
+     
 
     - task: PublishTestResults@2
       inputs:
