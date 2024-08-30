@@ -1,0 +1,57 @@
+trigger:
+- main   
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  mavenVersion: '3.8.6'
+  javaVersion: '11'
+  azureSubscription: 'Free Trial'
+  appName: 'Javasringboot'
+  resourceGroup: 'sand-rg'
+  webAppPackage: 'src/main.jar'
+
+stages:
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: BuildJob
+    displayName: 'Build Job'
+    steps:
+    - task: JavaToolInstaller@0
+      inputs:
+        versionSpec: '$(javaVersion)'
+        addToPath: true
+
+    - task: Maven@3
+      inputs:
+        mavenVersionOption: 'Default'
+        goals: 'clean install'
+        options: '-Dmaven.test.failure.ignore=false'
+        javaHomeOption: 'JDKVersion'
+        
+        jdkVersion: '1.8'
+      displayName: 'Run Maven build'
+
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFiles: '**/TEST-*.xml'
+        testRunTitle: 'Publish Test Results'
+      condition: succeededOrFailed()
+
+- stage: Deploy
+  displayName: 'Deploy Stage'
+  dependsOn: Build
+  jobs:
+  - job: DeployJob
+    displayName: 'Deploy Job'
+    steps:
+    - task: AzureWebApp@1
+      inputs:
+        azureSubscription: 'Free Tier'
+        appName: 'javaspringboot'
+        appType: "webapp"
+        package: $(System.DefaultWorkingDirectory)/$(webAppPackage)
+        resourceGroupName: 'sand-rg'
+      displayName: 'Deploy to Azure Web App'
