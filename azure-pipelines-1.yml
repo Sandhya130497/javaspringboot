@@ -3,6 +3,7 @@ trigger:
 
 pool:
   vmImage: 'ubuntu-latest'
+  name: 'javaspringboot'
 
 variables:
   mavenVersion: '3.8.6'
