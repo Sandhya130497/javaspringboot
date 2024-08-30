@@ -6,7 +6,7 @@ pool:
   name: 'javaspringboot'
 
 variables:
-  mavenVersion: '3.8.6'
+  mavenVersion: '3.0.5'
   javaVersion: '11'
   azureSubscription: 'javaspringboot'
   appName: 'Javasringboot'
